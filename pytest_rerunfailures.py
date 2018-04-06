@@ -131,8 +131,12 @@ def pytest_runtest_protocol(item, nextitem):
     check_options(item.session.config)
     delay = get_reruns_delay(item)
     parallel = hasattr(item.config, 'slaveinput')
+    full_runs_logs = dict()
+    runs_logs = dict()
+    runs_errors = dict()
 
-    for i in range(reruns + 1):  # ensure at least one run of each item
+    # ensure at least one run of each item, the +2 is to have it count 1, 2, 3 instead of 0, 1, 2
+    for i in range(1, reruns + 2):
         item.ihook.pytest_runtest_logstart(nodeid=item.nodeid,
                                            location=item.location)
         reports = runtestprotocol(item, nextitem=nextitem, log=False)
@@ -140,7 +144,22 @@ def pytest_runtest_protocol(item, nextitem):
         for report in reports:  # 3 reports: setup, test, teardown
             report.rerun = i
             xfail = hasattr(report, 'wasxfail')
-            if i == reruns or not report.failed or xfail:
+            if report.when == "call":
+                full_runs_logs[i] = report.sections
+
+                if i == 1:
+                    runs_logs[i] = full_runs_logs[i]
+                else:
+                    runs_logs[i] = full_runs_logs[i][len(full_runs_logs[i - 1]):]
+                report.runs_logs = runs_logs
+
+                if report.longrepr:
+                    runs_errors[i] = report.longreprtext
+                else:
+                    runs_errors[i] = None
+                report.runs_errors = runs_errors
+
+            if i == reruns + 1 or not report.failed or xfail:
                 # last run or no failure detected, log normally
                 item.ihook.pytest_runtest_logreport(report=report)
             else:
