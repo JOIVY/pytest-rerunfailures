@@ -121,10 +121,6 @@ def pytest_runtest_protocol(item, nextitem):
     """
 
     reruns = get_reruns_count(item) or 0
-    # if reruns is None:
-    #     # global setting is not specified, and this test is not marked with
-    #     # flaky
-    #     return
 
     # while this doesn't need to be run with every item, it will fail on the
     # first item if necessary
