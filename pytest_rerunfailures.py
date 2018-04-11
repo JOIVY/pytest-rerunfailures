@@ -120,11 +120,11 @@ def pytest_runtest_protocol(item, nextitem):
     the test case and the other for the teardown error.
     """
 
-    reruns = get_reruns_count(item)
-    if reruns is None:
-        # global setting is not specified, and this test is not marked with
-        # flaky
-        return
+    reruns = get_reruns_count(item) or 0
+    # if reruns is None:
+    #     # global setting is not specified, and this test is not marked with
+    #     # flaky
+    #     return
 
     # while this doesn't need to be run with every item, it will fail on the
     # first item if necessary
@@ -146,6 +146,11 @@ def pytest_runtest_protocol(item, nextitem):
             xfail = hasattr(report, 'wasxfail')
             if report.when == "call":
                 full_runs_logs[i] = report.sections
+
+                with open("/home/krzysztofs/PycharmProjects/log.txt", "w") as f:
+                    f.write(
+                        str(i)
+                    )
 
                 if i == 1:
                     runs_logs[i] = full_runs_logs[i]
