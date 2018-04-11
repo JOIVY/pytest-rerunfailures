@@ -143,11 +143,6 @@ def pytest_runtest_protocol(item, nextitem):
             if report.when == "call":
                 full_runs_logs[i] = report.sections
 
-                with open("/home/krzysztofs/PycharmProjects/log.txt", "w") as f:
-                    f.write(
-                        str(i)
-                    )
-
                 if i == 1:
                     runs_logs[i] = full_runs_logs[i]
                 else:
